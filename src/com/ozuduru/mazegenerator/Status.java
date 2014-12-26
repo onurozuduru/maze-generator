@@ -10,27 +10,21 @@ import java.awt.Color;
  *
  */
 public enum Status {
-	VISITED(true, Color.WHITE),
-	UNVISITED(false, Color.BLACK);
+	VISITED(Color.WHITE),
+	UNVISITED(Color.BLACK),
+	UNKNOWN(Color.BLACK);
 	
-	private boolean isVisited;
 	private Color color;
 	
 	/**
-	 * @param isVisited
 	 * @param color
 	 */
-	private Status(boolean isVisited, Color color) {
-		this.isVisited = isVisited;
+	private Status(Color color) {
 		this.color = color;
 	}
 
 	public Color getColor() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public boolean isVisited() {
-		return this.isVisited;
+		return this.color;
 	}
 
 }

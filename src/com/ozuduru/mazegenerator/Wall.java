@@ -20,7 +20,7 @@ public class Wall extends Cell {
 		this.setBackground(Color.BLACK);
 	}
 	
-	public void remove() {
+	public void removeMe() {
 		if(this.isRemoved() == true)
 			return;
 		this.setStatus(Status.VISITED);
