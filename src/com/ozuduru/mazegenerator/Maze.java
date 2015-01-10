@@ -4,36 +4,40 @@
 package com.ozuduru.mazegenerator;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Stack;
+
+import javax.swing.JPanel;
+import javax.swing.Timer;
 
 /**
  * @author onur
  *
  */
-public class Maze {
+public class Maze extends JPanel {
 	protected final static int CELL_WIDTH = 10, CELL_HEIGHT = 10;
-	protected static int WIDTH, HEIGHT;
-	protected static int BOUNDS_X, BOUNDS_Y;
+	protected final static int REFRESH_TIME = 60;
+	protected static int WIDTH, HEIGHT; // Initilized by constructer.
+	protected static int BOUNDS_X, BOUNDS_Y; // Initilized by constructer.
 	
 	private Stack<Cell> stack;
 	private ArrayList<Cell> unvisitedCells;
 	private ArrayList<Cell> container;
 	public ArrayList<Cell> path;
-
-	/**
-	 * @throws HeadlessException
-	 */
-	public Maze(int bX, int bY) throws HeadlessException {
-		this("MAZE", bX, bY);
-	}
+	private Cell start, finish, current;
+	protected boolean isGenerated;
+	private Timer simulationTimer;
 
 	/**
 	 * @param title
 	 * @throws HeadlessException
 	 */
-	public Maze(String title, int bX, int bY) throws HeadlessException {
+	public Maze(int bX, int bY) throws HeadlessException {
 		setBOUNDS_X(bX);
 		setBOUNDS_Y(bY);
 		WIDTH = BOUNDS_X * CELL_WIDTH;
@@ -43,6 +47,11 @@ public class Maze {
 		this.unvisitedCells = new ArrayList<Cell>();
 		this.path = new ArrayList<Cell>();
 		this.setCells();
+		this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		this.setPreferredSize(new Dimension(Maze.WIDTH, Maze.HEIGHT));
+		for(Cell c : this.container)
+			this.add(c);
+		this.isGenerated = false;
 	}
 	
 	private void setCells() {
@@ -62,12 +71,7 @@ public class Maze {
 				this.container.add(new Wall(x, y));
 		}
 	}
-	private int getIndexOfCell(Cell c) {
-		return (BOUNDS_X * c.get_Y()) + c.get_X();
-	}
-	private int getIndexOfCell(int x, int y) {
-		return (BOUNDS_X * y) + x;
-	}
+	
 	public static void setBOUNDS_X(int bOUNDS_X) {
 		BOUNDS_X = bOUNDS_X;
 	}
@@ -77,10 +81,10 @@ public class Maze {
 	}
 
 	public void generate() {
-		Cell current = unvisitedCells.remove(0);
+		current = unvisitedCells.remove(getRandomInt(unvisitedCells.size()));
 		current.setStatus(Status.VISITED);
-		Cell finish = null;
-		Cell start = current;
+		finish = null;
+		start = current;
 		while(!this.unvisitedCells.isEmpty()) {
 			if(unvisitedCells.size() == 1)
 				finish = unvisitedCells.get(0);
@@ -96,14 +100,56 @@ public class Maze {
 				current = this.stack.pop();
 			}
 			else {
-				System.out.println("yes");
-				current = this.unvisitedCells.remove((int) (System.currentTimeMillis() % this.unvisitedCells.size()));
+				current = this.unvisitedCells.remove(getRandomInt(unvisitedCells.size()));
 				current.setStatus(Status.VISITED);
 			}
 		}
-		this.drawPath(start, finish);
+		isGenerated = true;
+		start.setBackground(Color.GREEN);
+		finish.setBackground(Color.RED);
 	}
-	public void drawPath(Cell start, Cell finish) {
+	public Timer generateAndSimmulate() {
+		current = unvisitedCells.remove(getRandomInt(unvisitedCells.size()));
+		current.setStatus(Status.VISITED);
+		finish = null;
+		start = current;
+		simulationTimer = new Timer(Maze.REFRESH_TIME, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				repaint();
+				if(!unvisitedCells.isEmpty()) {
+					if(unvisitedCells.size() == 1)
+						finish = unvisitedCells.get(0);
+					Cell unvisited = chooseRandomUnvisitedNeighbour(current);
+					if(unvisited != null) {
+						stack.push(current);
+						theWallBetween(current, unvisited).removeMe();
+						current = unvisited;
+						current.setStatus(Status.VISITED);
+						unvisitedCells.remove(current);
+					}
+					else if(!stack.isEmpty()) {
+						current = stack.pop();
+					}
+					else {
+						current = unvisitedCells.remove(getRandomInt(unvisitedCells.size()));
+						current.setStatus(Status.VISITED);
+					}
+				}
+				else {
+					isGenerated = true;
+					simulationTimer.stop();
+					start.setBackground(Color.GREEN);
+					finish.setBackground(Color.RED);
+				}
+			}
+		});
+		return simulationTimer;
+	}
+	
+	public void drawPath() {
+		if(!isGenerated)
+			return;
 		Cell c2 = null;
 		Cell c1 = stack.pop();
 		c1.setBackground(Color.YELLOW);
@@ -122,12 +168,14 @@ public class Maze {
 		start.setBackground(Color.GREEN);
 		finish.setBackground(Color.RED);
 	}
+	
 	public Cell chooseRandomUnvisitedNeighbour(Cell c) {
 		ArrayList<Cell> n = this.findUnvisitedNeighbours(c);
 		if(n.isEmpty())
 			return null;
-		return n.get((int) (System.currentTimeMillis() % n.size()));
+		return n.get(getRandomInt(n.size()));
 	}
+	
 	public ArrayList<Cell> findUnvisitedNeighbours(Cell c) {
 		ArrayList<Cell> ret = new ArrayList<Cell>();
 		ArrayList<Position> pos = c.getNeighboursPositions();
@@ -138,6 +186,11 @@ public class Maze {
 		}
 		return ret;
 	}
+	
+	public int getRandomInt(int limit) {
+		return (int) (System.currentTimeMillis() % limit);
+	}
+	
 	public Wall theWallBetween(Cell c1, Cell c2) {		
 		int x = c1.get_X() - c2.get_X();
 		int y = c1.get_Y() - c2.get_Y();
@@ -146,9 +199,17 @@ public class Maze {
 		x = c2.get_X() + (x / 2);
 		y = c2.get_Y() + (y / 2);
 		return (Wall) this.container.get(getIndexOfCell(x, y));
-//		return this.walls[c2.get_X() + (x / 2)][c2.get_Y() + ( y / 2)];
 	}
-	public ArrayList<Cell> getContainer() {
+	
+	private int getIndexOfCell(int x, int y) {
+		return (BOUNDS_X * y) + x;
+	}
+
+	public ArrayList<Cell> getContainer() {		
 		return container;
+	}
+	
+	public Timer getSimulationTimer() {
+		return this.simulationTimer;
 	}
 }
