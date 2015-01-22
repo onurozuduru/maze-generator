@@ -26,6 +26,7 @@ public class Wall extends Cell {
 		this.setStatus(Status.VISITED);
 		this.setBackground(this.getStatus().getColor());
 	}
+	
 	public boolean isRemoved() {
 		return (this.getStatus() == Status.VISITED) ? true : false;
 	}
