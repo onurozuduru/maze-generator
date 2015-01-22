@@ -32,7 +32,7 @@ public class MazeFrame extends JFrame {
 	
 	private Maze maze;
 	private JPanel mainPanel, eastPanel;
-	private JButton bGenerate, bDrawPath, bGenAndSim;
+	private JButton bGenerate, bDrawPath, bGenAndSim, bReset;
 	private JSlider animSpeedSlider;
 	private ButtonListener buttonListener;
 
@@ -94,14 +94,17 @@ public class MazeFrame extends JFrame {
 		this.bGenerate = new JButton("Generate");
 		this.bGenAndSim = new JButton("Generate And Simmulate");
 		this.bDrawPath = new JButton("Show Path");
+		this.bReset = new JButton("Reset");
 		
 		this.bGenerate.addActionListener(buttonListener);
 		this.bGenAndSim.addActionListener(buttonListener);
 		this.bDrawPath.addActionListener(buttonListener);
+		this.bReset.addActionListener(buttonListener);
 		
 		eastPanel.add(bGenerate);
 		eastPanel.add(bGenAndSim);
 		eastPanel.add(bDrawPath);
+		eastPanel.add(bReset);
 	}
 
 	class ButtonListener implements ActionListener {
@@ -124,6 +127,21 @@ public class MazeFrame extends JFrame {
 				maze.drawPath();
 				if(maze.isGenerated)
 					bDrawPath.setEnabled(false);
+			}
+			else if(source == bReset) {
+				Timer timer = maze.getSimulationTimer();
+				
+				if(timer != null && timer.isRunning())
+					timer.stop();
+				mainPanel.remove(maze);
+				maze = new Maze(Maze.BOUNDS_X, Maze.BOUNDS_Y);
+				mainPanel.add(maze, BorderLayout.WEST);
+				mainPanel.updateUI();
+				
+				bGenerate.setEnabled(true);
+				bGenAndSim.setEnabled(true);
+				bDrawPath.setEnabled(true);
+				animSpeedSlider.setEnabled(false);
 			}
 		}//END OF Method actionPerformed
 	}//END OF Class ButtonListener
