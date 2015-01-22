@@ -40,8 +40,10 @@ public class Maze extends JPanel {
 	public Maze(int bX, int bY) throws HeadlessException {
 		setBOUNDS_X(bX);
 		setBOUNDS_Y(bY);
+		
 		WIDTH = BOUNDS_X * CELL_WIDTH;
 		HEIGHT = BOUNDS_Y * CELL_HEIGHT;
+		
 		this.stack = new Stack<Cell>();
 		this.container = new ArrayList<Cell>();
 		this.unvisitedCells = new ArrayList<Cell>();
@@ -49,6 +51,7 @@ public class Maze extends JPanel {
 		this.setCells();
 		this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		this.setPreferredSize(new Dimension(Maze.WIDTH, Maze.HEIGHT));
+		
 		for(Cell c : this.container)
 			this.add(c);
 		this.isGenerated = false;
@@ -56,10 +59,12 @@ public class Maze extends JPanel {
 	
 	private void setCells() {
 		int limit = Maze.BOUNDS_X * Maze.BOUNDS_Y;
+		
 		for(int i = 0; i <  limit; ++i) {
 			int x = i % Maze.BOUNDS_X;
 			int y = i / Maze.BOUNDS_X;
 			int oddOrEven = ((i / Maze.BOUNDS_X) % 2 == 0) ? 0 : 1;
+			
 			if(y % 2 == 1)
 				this.container.add(new Wall(x, y));
 			else if(i % 2 == oddOrEven) {
@@ -85,10 +90,13 @@ public class Maze extends JPanel {
 		current.setStatus(Status.VISITED);
 		finish = null;
 		start = current;
+		
 		while(!this.unvisitedCells.isEmpty()) {
 			if(unvisitedCells.size() == 1)
 				finish = unvisitedCells.get(0);
+			
 			Cell unvisited = this.chooseRandomUnvisitedNeighbour(current);
+			
 			if(unvisited != null) {
 				this.stack.push(current);
 				this.theWallBetween(current, unvisited).removeMe();
@@ -108,11 +116,13 @@ public class Maze extends JPanel {
 		start.setBackground(Color.GREEN);
 		finish.setBackground(Color.RED);
 	}
+	
 	public Timer generateAndSimmulate() {
 		current = unvisitedCells.remove(getRandomInt(unvisitedCells.size()));
 		current.setStatus(Status.VISITED);
 		finish = null;
 		start = current;
+		
 		simulationTimer = new Timer(Maze.REFRESH_TIME, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -121,6 +131,7 @@ public class Maze extends JPanel {
 					if(unvisitedCells.size() == 1)
 						finish = unvisitedCells.get(0);
 					Cell unvisited = chooseRandomUnvisitedNeighbour(current);
+					
 					if(unvisited != null) {
 						stack.push(current);
 						theWallBetween(current, unvisited).removeMe();
@@ -142,7 +153,7 @@ public class Maze extends JPanel {
 					start.setBackground(Color.GREEN);
 					finish.setBackground(Color.RED);
 				}
-			}
+			}//END OF Method actionPerformed
 		});
 		return simulationTimer;
 	}
@@ -152,18 +163,23 @@ public class Maze extends JPanel {
 			return;
 		Cell c2 = null;
 		Cell c1 = stack.pop();
+		
 		c1.setBackground(Color.YELLOW);
 		this.theWallBetween(c1, finish).setBackground(Color.YELLOW);
+		
 		while(!stack.isEmpty()) {
 			if(c2 != null)
 				this.theWallBetween(c1, c2).setBackground(Color.YELLOW);
 			if(stack.isEmpty())
 				break;
 			c2 = stack.pop();
+			
 			c1.setBackground(Color.YELLOW);
 			c2.setBackground(Color.YELLOW);
 			this.theWallBetween(c1, c2).setBackground(Color.YELLOW);
-			if(!stack.isEmpty()) c1 = stack.pop();
+			
+			if(!stack.isEmpty())
+				c1 = stack.pop();
 		}
 		start.setBackground(Color.GREEN);
 		finish.setBackground(Color.RED);
@@ -171,6 +187,7 @@ public class Maze extends JPanel {
 	
 	public Cell chooseRandomUnvisitedNeighbour(Cell c) {
 		ArrayList<Cell> n = this.findUnvisitedNeighbours(c);
+		
 		if(n.isEmpty())
 			return null;
 		return n.get(getRandomInt(n.size()));
@@ -179,6 +196,7 @@ public class Maze extends JPanel {
 	public ArrayList<Cell> findUnvisitedNeighbours(Cell c) {
 		ArrayList<Cell> ret = new ArrayList<Cell>();
 		ArrayList<Position> pos = c.getNeighboursPositions();
+		
 		for(Position p : pos) {
 			Cell neighbour = this.container.get(this.getIndexOfCell(c.get_X() + p.x, c.get_Y() + p.y));
 			if(!neighbour.isVisited())
@@ -194,10 +212,12 @@ public class Maze extends JPanel {
 	public Wall theWallBetween(Cell c1, Cell c2) {		
 		int x = c1.get_X() - c2.get_X();
 		int y = c1.get_Y() - c2.get_Y();
+		
 		if(x != 0 && y != 0)
 			return null;
 		x = c2.get_X() + (x / 2);
 		y = c2.get_Y() + (y / 2);
+		
 		return (Wall) this.container.get(getIndexOfCell(x, y));
 	}
 	
