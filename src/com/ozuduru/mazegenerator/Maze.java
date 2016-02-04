@@ -1,6 +1,32 @@
-/**
- * 
- */
+/*********************************************************************************
+*File: Maze.java
+*Author: Onur Ozuduru
+*   e-mail: onur.ozuduru { at } gmail.com
+*   github: github.com/onurozuduru
+*   twitter: twitter.com/OnurOzuduru
+*
+*License: The MIT License (MIT)
+*
+*   Copyright (c) 2016 Onur Ozuduru
+*   Permission is hereby granted, free of charge, to any person obtaining a copy
+*   of this software and associated documentation files (the "Software"), to deal
+*   in the Software without restriction, including without limitation the rights
+*   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*   copies of the Software, and to permit persons to whom the Software is
+*   furnished to do so, subject to the following conditions:
+*  
+*   The above copyright notice and this permission notice shall be included in all
+*   copies or substantial portions of the Software.
+*  
+*   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*   SOFTWARE.
+*********************************************************************************/
+
 package com.ozuduru.mazegenerator;
 
 import java.awt.Color;
@@ -15,10 +41,6 @@ import java.util.Stack;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-/**
- * @author onur
- *
- */
 public class Maze extends JPanel {
 	protected final static int CELL_WIDTH = 10, CELL_HEIGHT = 10;
 	protected final static int REFRESH_TIME = 60;
@@ -33,10 +55,6 @@ public class Maze extends JPanel {
 	protected boolean isGenerated;
 	private Timer simulationTimer;
 
-	/**
-	 * @param title
-	 * @throws HeadlessException
-	 */
 	public Maze(int bX, int bY) throws HeadlessException {
 		setBOUNDS_X(bX);
 		setBOUNDS_Y(bY);
@@ -48,6 +66,7 @@ public class Maze extends JPanel {
 		this.container = new ArrayList<Cell>();
 		this.unvisitedCells = new ArrayList<Cell>();
 		this.path = new ArrayList<Cell>();
+		
 		this.setCells();
 		this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		this.setPreferredSize(new Dimension(Maze.WIDTH, Maze.HEIGHT));

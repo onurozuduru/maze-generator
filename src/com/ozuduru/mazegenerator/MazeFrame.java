@@ -1,6 +1,32 @@
-/**
- * 
- */
+/*********************************************************************************
+*File: MazeFrame.java
+*Author: Onur Ozuduru
+*   e-mail: onur.ozuduru { at } gmail.com
+*   github: github.com/onurozuduru
+*   twitter: twitter.com/OnurOzuduru
+*
+*License: The MIT License (MIT)
+*
+*   Copyright (c) 2016 Onur Ozuduru
+*   Permission is hereby granted, free of charge, to any person obtaining a copy
+*   of this software and associated documentation files (the "Software"), to deal
+*   in the Software without restriction, including without limitation the rights
+*   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*   copies of the Software, and to permit persons to whom the Software is
+*   furnished to do so, subject to the following conditions:
+*  
+*   The above copyright notice and this permission notice shall be included in all
+*   copies or substantial portions of the Software.
+*  
+*   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*   SOFTWARE.
+*********************************************************************************/
+
 package com.ozuduru.mazegenerator;
 
 import java.awt.BorderLayout;
@@ -18,11 +44,10 @@ import javax.swing.JSlider;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 
-/**
- * @author onur
- *
- */
 public class MazeFrame extends JFrame {
 	protected static final int EAST_PANEL_WIDTH = 250;
 	protected static final int EAST_PANEL_HEIGHT = 150;
@@ -32,21 +57,14 @@ public class MazeFrame extends JFrame {
 	
 	private Maze maze;
 	private JPanel mainPanel, eastPanel;
-	private JButton bGenerate, bDrawPath, bGenAndSim, bReset;
+	private JButton bGenerate, bDrawPath, bGenAndSim, bReset, bXmlGen;
 	private JSlider animSpeedSlider;
 	private ButtonListener buttonListener;
 
-	/**
-	 * @throws HeadlessException
-	 */
 	public MazeFrame(Maze maze) throws HeadlessException {
 		this("MAZE", maze);
 	}
 	
-	/**
-	 * @param title
-	 * @throws HeadlessException
-	 */
 	public MazeFrame(String title, Maze maze) throws HeadlessException {
 		super(title);
 		this.maze = maze;
@@ -95,18 +113,22 @@ public class MazeFrame extends JFrame {
 		this.bGenAndSim = new JButton("Generate And Simmulate");
 		this.bDrawPath = new JButton("Show Path");
 		this.bReset = new JButton("Reset");
+		this.bXmlGen = new JButton("Generate XML");
 		
 		this.bGenerate.addActionListener(buttonListener);
 		this.bGenAndSim.addActionListener(buttonListener);
 		this.bDrawPath.addActionListener(buttonListener);
 		this.bReset.addActionListener(buttonListener);
+		this.bXmlGen.addActionListener(buttonListener);
 		
 		eastPanel.add(bGenerate);
 		eastPanel.add(bGenAndSim);
 		eastPanel.add(bDrawPath);
 		eastPanel.add(bReset);
+		eastPanel.add(bXmlGen);
 	}
 
+	
 	class ButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -128,6 +150,21 @@ public class MazeFrame extends JFrame {
 				if(maze.isGenerated)
 					bDrawPath.setEnabled(false);
 			}
+			else if(source == bXmlGen) {
+				if(!maze.isGenerated)
+					return;
+				if(bDrawPath.isEnabled()) {
+					maze.drawPath();
+					bDrawPath.setEnabled(false);
+				}
+				try {
+					XMLGenerator.generateXML(maze.getContainer(), maze.BOUNDS_X, maze.BOUNDS_Y);
+				} catch (ParserConfigurationException | TransformerException
+						| TransformerFactoryConfigurationError e1) {
+					e1.printStackTrace();
+				}
+				bXmlGen.setEnabled(false);
+			}
 			else if(source == bReset) {
 				Timer timer = maze.getSimulationTimer();
 				
@@ -141,6 +178,7 @@ public class MazeFrame extends JFrame {
 				bGenerate.setEnabled(true);
 				bGenAndSim.setEnabled(true);
 				bDrawPath.setEnabled(true);
+				bXmlGen.setEnabled(true);
 				animSpeedSlider.setEnabled(false);
 			}
 		}//END OF Method actionPerformed
@@ -155,7 +193,11 @@ public class MazeFrame extends JFrame {
 			if(!source.getValueIsAdjusting() && !maze.isGenerated) {
 				int value = (int) source.getValue();
 				
-				if(value == 0 && timer.isRunning()) timer.stop();
+				if(value == 0) {
+					if(!timer.isRunning())
+						return;
+					timer.stop();
+				}
 				else {
 					int delay = 1800 / value;
 					timer.setDelay(delay);
