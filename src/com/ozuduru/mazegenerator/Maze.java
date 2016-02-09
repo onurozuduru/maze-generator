@@ -136,7 +136,7 @@ public class Maze extends JPanel {
 		finish.setBackground(Color.RED);
 	}
 	
-	public Timer generateAndSimmulate() {
+	public Timer generateAndSimulate() {
 		current = unvisitedCells.remove(getRandomInt(unvisitedCells.size()));
 		current.setStatus(Status.VISITED);
 		finish = null;

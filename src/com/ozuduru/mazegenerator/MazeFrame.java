@@ -110,7 +110,7 @@ public class MazeFrame extends JFrame {
 
 	private void setButtons() {
 		this.bGenerate = new JButton("Generate");
-		this.bGenAndSim = new JButton("Generate And Simmulate");
+		this.bGenAndSim = new JButton("Generate And Simulate");
 		this.bDrawPath = new JButton("Show Path");
 		this.bReset = new JButton("Reset");
 		this.bXmlGen = new JButton("Generate XML");
@@ -140,7 +140,7 @@ public class MazeFrame extends JFrame {
 				bGenAndSim.setEnabled(false);
 			}
 			else if(source == bGenAndSim) {
-				maze.generateAndSimmulate().start();
+				maze.generateAndSimulate().start();
 				bGenerate.setEnabled(false);
 				bGenAndSim.setEnabled(false);
 				animSpeedSlider.setEnabled(true);
